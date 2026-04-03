@@ -1,7 +1,7 @@
 from tensorflow import keras
 from tensorflow.keras import layers
 
-def model_a(input_shape, num_classes):
+def shallow_model(input_shape, num_classes):
     
     model = keras.Sequential([
         layers.Input(shape=input_shape),
@@ -17,10 +17,10 @@ def model_a(input_shape, num_classes):
         layers.Dropout(0.3),
         layers.Dense(num_classes, activation="softmax")
         
-    ])
+    ], name = "shallow_model")
     return model
 
-def model_b(input_shape, num_classes):
+def deep_model(input_shape, num_classes):
     
     model = keras.Sequential([
         layers.Input(shape=input_shape),
@@ -43,13 +43,13 @@ def model_b(input_shape, num_classes):
         layers.Dense(256, activation='relu'),
         layers.Dropout(0.4),
         layers.Dense(num_classes, activation='softmax')
-    ])
+    ], name="deep_model")
     return model
 
 print("MODEL A — Mel input:")
-model_test = model_a((64, 101, 1), 10)
+model_test = shallow_model((64, 101, 1), 10)
 model_test.summary()
 
 print("\nMODEL B — Mel input:")
-model_test = model_b(input_shape=(64, 101, 1), num_classes=10)
+model_test = deep_model(input_shape=(64, 101, 1), num_classes=10)
 model_test.summary()
