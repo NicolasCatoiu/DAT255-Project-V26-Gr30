@@ -1,6 +1,15 @@
 import streamlit as st
 import random
 import time
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from backend.predictor import load_model, predict_sequence
+
+@st.cache_resource
+def get_model():
+    return load_model()
 
 st.set_page_config(page_title="Voice Memory Game", page_icon="🧠", layout="centered")
 
@@ -28,9 +37,12 @@ if "round" not in st.session_state:
     st.session_state.round = 0
 if "result_shown" not in st.session_state:
     st.session_state.result_shown = False
+if "streak" not in st.session_state:
+    st.session_state.streak = 0
 
 st.title("Voice Memory Game")
 st.markdown("Remember the number sequence, then say it out loud.")
+st.markdown(f"**Streak: {st.session_state.streak}**")
 st.markdown("---")
 
 level = st.selectbox("Select difficulty", ["Easy", "Medium", "Hard"])
@@ -74,20 +86,26 @@ if st.session_state.game_started:
         if audio is not None:
             st.audio(audio, format="audio/wav")
 
-            def predict_numbers(audio_data):
-                # TODO: replace with real CNN model
-                return st.session_state.sequence if random.random() > 0.5 else ["1", "2", "3"]
+            with st.spinner("Analyzing your voice..."):
+                predicted_sequence = predict_sequence(
+                    audio.getvalue(),
+                    expected_length=len(st.session_state.sequence),
+                    model=get_model()
+                )
 
-            predicted_sequence = predict_numbers(audio)
             st.session_state.result_shown = True
             st.markdown("---")
 
+            st.markdown(f"**Model heard:** {' '.join(predicted_sequence)}")
+
             if predicted_sequence == st.session_state.sequence:
+                st.session_state.streak += 1
                 st.balloons()
-                st.success(f"Correct! You said: {' '.join(predicted_sequence)}")
+                st.success(f"Correct! Streak: {st.session_state.streak}")
             else:
+                st.session_state.streak = 0
                 st.error(f"Wrong! Correct answer: {' '.join(st.session_state.sequence)}")
-                st.warning(f"Model heard: {' '.join(predicted_sequence)}")
+                st.warning("Streak reset to 0")
 
             if st.button("Try Again"):
                 st.session_state.game_started = False
