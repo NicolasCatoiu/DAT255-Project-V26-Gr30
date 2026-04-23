@@ -116,11 +116,15 @@ elif st.session_state.phase == "listening":
 
         with st.spinner(f"Recognizing {expected} digits..."):
             t0 = time.time()
-            result = predict_sequence(
-                audio.getvalue(),
-                expected_length=expected,
-                model=get_model(),
-            )
+            try:
+                result = predict_sequence(
+                    audio.getvalue(),
+                    expected_length=expected,
+                    model=get_model(),
+                )
+            except Exception as e:
+                st.error(f"Something went wrong during recognition: {e}")
+                st.stop()
             elapsed = time.time() - t0
 
         st.session_state.attempts += 1
