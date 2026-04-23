@@ -9,7 +9,6 @@ import tensorflow as tf
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import MODEL_DIR
 
-# ── constants ────────────────────────────────────────────────────────────────
 SR = 16000
 SILENCE_LABEL        = 10
 CONFIDENCE_THRESHOLD = 0.60
@@ -47,7 +46,6 @@ def _normalize(audio):
         return audio
     return audio / peak
 
-
 def _trim_mic_startup(audio):
     check = int(SR * MIC_STARTUP_SEC)
     if len(audio) <= check * 2:
@@ -56,16 +54,13 @@ def _trim_mic_startup(audio):
         return audio[check:]
     return audio
 
-
 def _rms(audio):
     return float(np.sqrt(np.mean(audio ** 2)))
-
 
 def _pad_to_1s(audio):
     if len(audio) < SR:
         return np.pad(audio, (0, SR - len(audio)))
     return audio[:SR]
-
 
 def _make_mel(audio_1s):
     mel = librosa.feature.melspectrogram(
