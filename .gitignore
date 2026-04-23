@@ -22,7 +22,7 @@ env/
 *.ipynb_checkpoints
 
 # Data & model files
-.keras
+
 *.h5
 *.hdf5
 *.pkl

@@ -29,15 +29,18 @@ def deep_model(input_shape, num_classes):
         layers.BatchNormalization(),
         layers.Activation('relu'),
         layers.MaxPooling2D((2,2)),
+        layers.Dropout(0.2),
         
         layers.Conv2D(64, (3,3), padding='same'),
         layers.BatchNormalization(),
         layers.Activation('relu'),
         layers.MaxPooling2D((2,2)),
+        layers.Dropout(0.2),
         
         layers.Conv2D(128, (3,3), padding='same'),
         layers.BatchNormalization(),
         layers.Activation('relu'),
+        layers.Dropout(0.3),
         
         layers.GlobalAveragePooling2D(),
         layers.Dense(256, activation='relu'),

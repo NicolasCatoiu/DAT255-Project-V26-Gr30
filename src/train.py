@@ -48,10 +48,17 @@ def train_model(model, X_train, y_train, X_val, y_val, lr=0.001, batch_size=32, 
         ),
         keras.callbacks.EarlyStopping(
             monitor="val_accuracy",
-            patience=5,
+            patience=10,
             verbose=1,
             restore_best_weights=True
-        )
+        ),
+        keras.callbacks.ReduceLROnPlateau(    
+        monitor='val_loss',
+        factor=0.5,                        
+        patience=3,
+        min_lr=1e-6,
+        verbose=1
+    )
         ]
     
     print(f"\n{'='*50}")
@@ -77,7 +84,7 @@ def train_model(model, X_train, y_train, X_val, y_val, lr=0.001, batch_size=32, 
 if __name__ == "__main__":
     data = loadData()
     
-    experiments = [
+    baseline_experiments = [
         {
             "name": "shallow_model-melSpectrogram",
             "model": shallow_model(input_shape=(64, 101, 1), num_classes=10),
@@ -94,7 +101,7 @@ if __name__ == "__main__":
             "learning_rate": 0.001,
             "batch_size": 32,
         },
-        {
+        { #Denne modellen er best
             "name": "deep_model-melSpectrogram",
             "model": deep_model(input_shape=(64, 101, 1), num_classes=10),
             "X_train": data["X_train_mel"],
@@ -120,14 +127,27 @@ if __name__ == "__main__":
         }
     ]
     
+    experiments = [
+        {
+            "name": "best_baselineModel_augmented",
+            "model": deep_model(input_shape=(64, 101, 1), num_classes=11),
+            "X_train": np.load(f"{DATA_DIR}/X_train_mel_aug11.npy"),
+            "X_val":   np.load(f"{DATA_DIR}/X_val_mel_11class.npy"),
+            "y_train": np.load(f"{DATA_DIR}/y_train_aug11.npy"),
+            "y_val":   np.load(f"{DATA_DIR}/y_val_11class.npy"),
+            "learning_rate": 0.001,
+            "batch_size": 32,
+        }
+    ]
+    
     results={}
     for exp in experiments:
         model, history = train_model(
             model=exp["model"],
             X_train=exp["X_train"],
-            y_train=data["y_train"],
+            y_train=exp.get("y_train", data["y_train"]),
             X_val=exp["X_val"],
-            y_val=data["y_val"],
+            y_val=exp.get("y_val", data["y_val"]),
             lr=exp["learning_rate"],
             batch_size=exp["batch_size"],
             experiment_name=exp["name"]
