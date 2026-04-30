@@ -118,7 +118,7 @@ if __name__ == "__main__":
             "batch_size": 32,
         },
         {
-            "name": "deep_model-mel-lr0.0001",
+            "name": "deep_model-mel-lr0.01",
             "model": deep_model(input_shape=(64, 101, 1), num_classes=10),
             "X_train": data["X_train_mel"],
             "X_val": data["X_val_mel"],
